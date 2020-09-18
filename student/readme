@@ -1,0 +1,30 @@
+##Status update
+{
+"status":"true"
+}
+##Add course
+
+{"course_name":"ASP","duration":"6months","course_fee":"2000"}
+
+##Student Enroll
+
+
+{
+                "firstname": "dsfggs",
+                "lastname": "madala",
+                "mobile": "7101910296",
+                "gender": "female",
+                "age": "25",
+                "email": "repalaswathi@gmail.com",
+                "course_name":"AS"
+
+
+}
+
+##Daterange csv
+
+{
+    "start_date":"2020-09-17",
+	"end_date":"2020-09-17"
+
+}
