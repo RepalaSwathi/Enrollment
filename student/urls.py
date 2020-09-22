@@ -6,8 +6,13 @@ from . import views
 urlpatterns = [
     #Student Enroll And Get,Delete
     url(r'^enroll/student/',StudentRegister.as_view()),
-    url(r'^studentview/(?P<query_type>\w+)$',StudentViewSet.as_view()),
+    url(r'^studentview/(?P<query_type>\w+)$',StudentListViewSet.as_view()),
+    url(r'^get/(?P<pk>[\w-]+)$',StudentGet.as_view()),
+
     url(r'^delete/student/',StudentDelete.as_view()),
+
+    url(r'^summary',Summary.as_view()),
+    url(r'^aggre/(?P<query_type>\w+)$',Aggregate.as_view()),
 
     #Course Add
     url(r'^course/create$',CourseCreate.as_view()),
