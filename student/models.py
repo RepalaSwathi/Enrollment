@@ -24,7 +24,7 @@ class Student(models.Model):
 	
 	firstname = models.CharField(max_length=100,blank=True,null=True)
 	lastname = models.CharField(max_length=100,blank=True,null=True)
-	mobile = models.CharField(max_length=10,blank=True,null=True)
+	mobile = models.CharField(max_length=20,blank=True,null=True)
 	gender = models.CharField(max_length=20,choices = GENDER_CHOICES)
 	email = models.CharField(max_length=40,blank=True,null=True)
 	age = models.IntegerField()

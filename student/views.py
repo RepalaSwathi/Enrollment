@@ -104,7 +104,7 @@ class StudentDelete(APIView):
 			try:
 				stuc_obj = StudentCourse.objects.get(pk=request.data['id'])
 				stuc_obj.delete()     
-				context_data = {"success" : True, "data" :{"message":"studen record has been deleted"}} 
+				context_data = {"success" : True, "data" :{"message":"student record has been deleted"}} 
 			except StudentCourse.DoesNotExist as e:            
 				context_data = {"success" : False, "errors" : {"message":"No Student Record Found on this id"}}
 				pass
@@ -161,24 +161,22 @@ class StatusUpdate(APIView):
 			context_data = {"success" : False, "errors" : {"message": "Validation Error" ,  "errors_list" :serializer.errors}}
 		return Response(context_data)
 
-class Summary(APIView):
-	def post(self,request,format=None):
-		try:
-			sc_obj=StudentCourse.objects.filter(enroll_date=request.data['enroll_date'])
-			queryset=sc_obj.values('id')
-			context_data = {"success" : True, "data" : {"Number of students enrolled " :queryset.count()}}
-			return Response(context_data)
-		except Exception as e:
-			print(e)
-			pass
-		try:
-			sc_obj=StudentCourse.objects.filter(course__course_name=request.data['course_name'])
-			queryset=sc_obj.values('course__course_name')
-			context_data = {"success" : True, "data" : {"Number of students enrolled on this course" :queryset.count()}}
-			return Response(context_data)
-		except Exception as e:
-			print(e)
-			pass
+# class Summary(APIView):
+# 	def post(self,request,format=None):
+# 		try:
+# 			queryset=StudentCourse.objects.filter(enroll_date=request.data['date']).count()
+# 			context_data = {"success" : True, "data" : {"Number of students enrolled " :queryset}}
+# 			return Response(context_data)
+# 		except Exception as e:
+# 			print(e)
+# 			pass
+# 		try:
+# 			queryset=StudentCourse.objects.filter(course__course_name=request.data['course_name'])
+# 			context_data = {"success" : True, "data" : {"Number of students enrolled on this course" :queryset.count()}}
+# 			return Response(context_data)
+# 		except Exception as e:
+# 			print(e)
+# 			pass
 
 class Aggregate(APIView):
 	def get(self,request,query_type):
@@ -264,3 +262,103 @@ class StudentListViewSet(APIView):
 		else:
 			context_data = {"success" : False,"errors" : {"message":"Invalid Query"}}
 			return Response(context_data) 
+class Summary(APIView):
+	def get(self,request,query_type):
+		if query_type == 'total_registrations':
+			try:
+				enroll_date = request.GET.get('enroll_date')
+				print enroll_date
+				student_list =[]
+				student_obj_list =StudentCourse.objects.filter(enroll_date=(enroll_date))
+				print student_obj_list
+				for each_doc in student_obj_list:
+					id = each_doc.id
+					status = each_doc.status
+					firstname = each_doc.student.firstname
+					lastname = each_doc.student.lastname
+					email = each_doc.student.email
+					gender = each_doc.student.gender
+					age = each_doc.student.age
+					mobile = each_doc.student.mobile
+					course_name = each_doc.course.course_name
+					course_fee = each_doc.course.course_fee
+					duration = each_doc.course.duration
+					student_list.append([status,course_fee,duration,course_name,firstname,lastname,age,email,gender,mobile,id])
+				response = HttpResponse(content_type='text/csv')
+				current_date = datetime.now().strftime("%Y-%m-%d : %H-%M-%S %p")
+				filename = "StudentViewSet-Download_{0}.csv".format(current_date)
+				response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+				fieldnames = ['Status', 'Course fee','Duration','Course Name','First Name','Lastname','Age','Email','Gender','Mobile','Ackn_Number']
+				writer = csv.writer(response)
+				writer.writerow(fieldnames)
+				writer.writerows(student_list)
+				return response 
+			except Exception as e:
+				print(str(e))
+				context_data = {"success" : False, "data" : {"message":str(e) }}
+				return Response(context_data)
+		elif query_type == 'total_courseregister':
+			try:
+				course_name = request.GET.get('course_name')
+				student_list =[]
+				student_obj_list =StudentCourse.objects.filter(course__course_name=(course_name))
+				for each_doc in student_obj_list:
+					id = each_doc.id
+					status = each_doc.status
+					firstname = each_doc.student.firstname
+					lastname = each_doc.student.lastname
+					email = each_doc.student.email
+					gender = each_doc.student.gender
+					age = each_doc.student.age
+					mobile = each_doc.student.mobile
+					course_name = each_doc.course.course_name
+					course_fee = each_doc.course.course_fee
+					duration = each_doc.course.duration
+					student_list.append([status,course_fee,duration,course_name,firstname,lastname,age,email,gender,mobile,id])
+				response = HttpResponse(content_type='text/csv')
+				current_date = datetime.now().strftime("%Y-%m-%d : %H-%M-%S %p")
+				filename = "StudentViewSet-Download_{0}.csv".format(current_date)
+				response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+				fieldnames = ['Status', 'Course fee','Duration','Course Name','First Name','Lastname','Age','Email','Gender','Mobile','Ackn_Number']
+				writer = csv.writer(response)
+				writer.writerow(fieldnames)
+				writer.writerows(student_list)
+				return response 
+			except Exception as e:
+				print(str(e))
+				context_data = {"success" : False, "data" : {"message":str(e) }}
+				return Response(context_data)
+		elif query_type == 'last_transactions':
+			try:
+				enroll_date = request.GET.get('enroll_date')
+				student_list =[]
+				student_obj_list =StudentCourse.objects.filter(enroll_date=(enroll_date))[:2]
+				for each_doc in student_obj_list:
+					id = each_doc.id
+					status = each_doc.status
+					firstname = each_doc.student.firstname
+					lastname = each_doc.student.lastname
+					email = each_doc.student.email
+					gender = each_doc.student.gender
+					age = each_doc.student.age
+					mobile = each_doc.student.mobile
+					course_name = each_doc.course.course_name
+					course_fee = each_doc.course.course_fee
+					duration = each_doc.course.duration
+					student_list.append([status,course_fee,duration,course_name,firstname,lastname,age,email,gender,mobile,id])
+				response = HttpResponse(content_type='text/csv')
+				current_date = datetime.now().strftime("%Y-%m-%d : %H-%M-%S %p")
+				filename = "StudentViewSet-Download_{0}.csv".format(current_date)
+				response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+				fieldnames = ['Status', 'Course fee','Duration','Course Name','First Name','Lastname','Age','Email','Gender','Mobile','Ackn_Number']
+				writer = csv.writer(response)
+				writer.writerow(fieldnames)
+				writer.writerows(student_list)
+				return response 
+			except Exception as e:
+				print(str(e))
+				context_data = {"success" : False, "data" : {"message":str(e) }}
+				return Response(context_data)
+		else:
+			context_data = {"success" : False,"errors" : {"message":"Invalid Query"}}
+			return Response(context_data)

@@ -11,7 +11,7 @@ urlpatterns = [
 
     url(r'^delete/student/',StudentDelete.as_view()),
 
-    url(r'^summary',Summary.as_view()),
+    url(r'^summary/(?P<query_type>\w+)',Summary.as_view()),
     url(r'^aggre/(?P<query_type>\w+)$',Aggregate.as_view()),
 
     #Course Add
