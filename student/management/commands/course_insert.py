@@ -5,7 +5,7 @@ import random
 import string
 
 class Command(BaseCommand):
-	help = 'Create random students'
+	help = 'Create random courses'
 
 	def add_arguments(self, parser):
 		parser.add_argument('total', type=int, help='Indicates the number of course to be created')
