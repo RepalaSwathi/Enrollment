@@ -18,7 +18,7 @@ def random_mobile_generator():
 	return '{}{}{}'.format(first, second, last)
 
 def random_email(y):
-	   return ''.join(random.choice(string.ascii_letters) for x in range(y))
+	   return ''.join(random.choice(string.ascii_lowercase) for x in range(y))
 
 
 class Command(BaseCommand):

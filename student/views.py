@@ -332,7 +332,7 @@ class Summary(APIView):
 			try:
 				enroll_date = request.GET.get('enroll_date')
 				student_list =[]
-				student_obj_list =StudentCourse.objects.filter(enroll_date=(enroll_date))[:2]
+				student_obj_list =StudentCourse.objects.filter(enroll_date=(enroll_date)).order_by('-id')[:10]
 				for each_doc in student_obj_list:
 					id = each_doc.id
 					status = each_doc.status
