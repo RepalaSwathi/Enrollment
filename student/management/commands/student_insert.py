@@ -2,6 +2,9 @@
 from django.core.management.base import BaseCommand
 from django.utils.crypto import get_random_string
 from student.models import Student
+from student.models import Course
+from student.models import StudentCourse
+
 import random
 import string
 import requests
@@ -30,8 +33,12 @@ class Command(BaseCommand):
 	def handle(self, **kwargs):
 		total = kwargs['total']
 		gender_choise = ['Female', 'Male']
+		course_list = ['Java', 'Python', 'DotNet']
 		for i in range(total):
 		 	mobile=random_mobile_generator()
+		 	course_name=random.choice(course_list)
+
+		 	course_obj = Course.objects.get(course_name=course_name)
 			try:
 				student_obj = Student.objects.get(mobile=mobile)
 				print "already exist"
@@ -48,3 +55,5 @@ class Command(BaseCommand):
 				print student_data
 			except Exception as e:
 				print(str(e))
+			sc_obj = StudentCourse.objects.create(student=student_obj,course=course_obj)
+				

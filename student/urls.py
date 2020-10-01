@@ -8,7 +8,6 @@ urlpatterns = [
     url(r'^enroll/student/',StudentRegister.as_view()),
     url(r'^studentview/(?P<query_type>\w+)$',StudentListViewSet.as_view()),
     url(r'^get/(?P<pk>[\w-]+)$',StudentGet.as_view()),
-
     url(r'^delete/student/',StudentDelete.as_view()),
 
     url(r'^summary/(?P<query_type>\w+)',Summary.as_view()),
@@ -19,5 +18,11 @@ urlpatterns = [
 
     #status Update
     url(r'^status/(?P<pk>[\w-]+)/update$',StatusUpdate.as_view()),
+
+    #organization
+    url(r'^organization/add',OrganizationAdd.as_view()),
+    url(r'^org/get/(?P<pk>[\w-]+)$',OrganizationCourseGet.as_view()),
+    url(r'^org/csv/',OrganizationCourseCsv.as_view()),
+
 
 ]

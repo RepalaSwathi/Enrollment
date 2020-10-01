@@ -11,6 +11,7 @@ from student.serializers import StudentSerializer
 from student.serializers import CourseSerializer
 from student.serializers import UpdateSerializer
 from student.serializers import StudentGetSerializer
+from student.serializers import OrganizationAddSerializer
 from rest_framework.response import Response 
 from django.http import HttpResponse,Http404
 from django.http import HttpResponse
@@ -24,7 +25,6 @@ from rest_framework import viewsets
 from rest_framework import status
 from django.db.models import Count,Max,Min
 import csv
-# import datetime
 from datetime import datetime
 # Create your views here.
 
@@ -41,6 +41,7 @@ class StudentRegister(APIView):
 				except Exception as e:
 					print(str(e))
 				course_obj = Course.objects.get(course_name=request.data.get('course_name'))
+				org_obj = Organization.objects.get(org_name=request.data.get('org_name'))
 				student_data={
 						"firstname":request.data.get('firstname'),
 						"lastname": request.data.get('lastname'),
@@ -60,6 +61,7 @@ class StudentRegister(APIView):
 				except Exception as e:
 					print(str(e))
 				sc_obj = StudentCourse.objects.create(student=student_obj,course=course_obj)
+				organization_obj = OrganizationCourse.objects.create(organization=org_obj,course=course_obj,student=student_obj)
 				context_data = {"success" : True, "data" : {"student_data":student_data,"Acknowledgement_Number":sc_obj.pk,"message" : " Student Enrolled Successfully"} }
 			except Exception as e:
 				print(e)
@@ -125,10 +127,11 @@ class CourseCreate(APIView):
 							"course_name":request.data.get('course_name'),
 							"duration": request.data.get('duration'),
 							"course_fee": request.data.get('course_fee'),
+							"category": request.data.get('category'),
 							}
 				course_data = Course.objects.create(**course_obj)
 				queryset = Course.objects.filter(course_name=request.data['course_name'])
-				course_obj_list = queryset.values('course_name','duration','course_fee')				
+				course_obj_list = queryset.values('course_name','duration','course_fee','category')				
 				context_data = {"success" : True, "data" : {"course_data" :course_obj_list, "message" : " Course Created Successfully"}}
 				return Response(context_data)
 			except Exception as e:
@@ -334,7 +337,7 @@ class Summary(APIView):
 				student_list =[]
 				student_obj_list =StudentCourse.objects.filter(enroll_date=(enroll_date)).order_by('-id')[:10]
 				for each_doc in student_obj_list:
-					id = each_doc.id
+					id =each_doc.id
 					status = each_doc.status
 					firstname = each_doc.student.firstname
 					lastname = each_doc.student.lastname
@@ -362,3 +365,99 @@ class Summary(APIView):
 		else:
 			context_data = {"success" : False,"errors" : {"message":"Invalid Query"}}
 			return Response(context_data)
+
+class OrganizationAdd(APIView):
+	def post(self,request,format=None):
+		logger.info("*** OrganizationAdd POST Request Process Start ***")	
+		serializer = OrganizationAddSerializer(data=request.data)
+		if serializer.is_valid():
+			org_obj = Organization.objects.filter(org_name=request.data['org_name'])
+			if org_obj.count() > 0:
+				context_data = {"success" : False, "data" :{"message" : "Organization already Exist"}}
+				return Response(context_data)
+			try:
+				# course_obj = Course.objects.get(course_name=request.data.get('course_name'))
+				org_data={
+							"org_name":request.data.get('org_name'),
+							"org_email": request.data.get('org_email'),
+							"org_address": request.data.get('org_address'),
+							"org_mobile": request.data.get('org_mobile'),
+							}
+				org_obj = Organization.objects.create(**org_data)
+				queryset = Organization.objects.filter(org_name=request.data['org_name'])
+				org_obj_list = queryset.values('org_name','org_mobile','org_email','org_address')
+				# or_obj = OrganizationCourse.objects.create(course=course_obj,organization=org_obj)				
+				context_data = {"success" : True, "data" : {"organization_data" :org_obj_list, "message" : " Organization Added Successfully"}}
+				return Response(context_data)
+			except Exception as e:
+				print(e)
+				pass
+		else:
+			print serializer.errors
+			context_data = {"success" : False, "errors" : {"message": "Validation Error" ,  "errors_list" :serializer.errors}}
+			logger.info("*** OrganizationAdd Request Process End ***")  
+			return Response(context_data)
+
+class OrganizationCourseGet(APIView):
+	def get(self,request,pk=None):
+		try:
+			org_list =[]
+			org_obj_list =OrganizationCourse.objects.filter(pk=pk)
+			for each_doc in org_obj_list:
+				org_form={
+					"id":each_doc.id,
+					"firstname":each_doc.student.firstname,
+					"lastname":each_doc.student.lastname,
+					"email": each_doc.student.email,
+					"gender":each_doc.student.gender,
+					"age":each_doc.student.age,
+					"mobile":each_doc.student.mobile,
+					"course_name":each_doc.course.course_name,
+					"course_fee": each_doc.course.course_fee,
+					"category":each_doc.course.category,
+					"duration":each_doc.course.duration,
+					"org_name":each_doc.organization.org_name,
+					"org_email":each_doc.organization.org_email,
+
+					}
+				org_list.append(org_form)		
+			context_data = {"success" : True, "data" :{"organization_data" :org_list}}
+			return Response(context_data)
+		except Exception as e:
+			print(str(e))
+			context_data = {"success" : False, "data" : {"message":str(e) }}
+			return Response(context_data)
+
+
+class OrganizationCourseCsv(APIView):
+	def get(self,request):
+		org_name = request.GET.get('org_name')
+		org_list =[]
+		org_obj_list =OrganizationCourse.objects.filter(organization__org_name=(org_name))
+		for each_doc in org_obj_list:
+			id = each_doc.id
+			firstname = each_doc.student.firstname
+			lastname = each_doc.student.lastname
+			email = each_doc.student.email
+			gender = each_doc.student.gender
+			age = each_doc.student.age
+			mobile = each_doc.student.mobile
+			course_name = each_doc.course.course_name
+			course_fee = each_doc.course.course_fee
+			duration = each_doc.course.duration
+			category = each_doc.course.category
+			org_name = each_doc.organization.org_name
+			org_mobile = each_doc.organization.org_mobile
+			org_email = each_doc.organization.org_email
+			org_address = each_doc.organization.org_address
+			org_list.append([category,course_fee,duration,course_name,firstname,lastname,age,email,gender,mobile,id,org_name,org_mobile,org_email,org_address])
+		response = HttpResponse(content_type='text/csv')
+		current_date = datetime.now().strftime("%Y-%m-%d : %H-%M-%S %p")
+		filename = "OrganizationViewSet-Download_{0}.csv".format(current_date)
+		response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+		fieldnames = ['Category', 'Course fee','Duration','Course Name','First Name','Lastname','Age','Email','Gender','Mobile','Ackn_Number','Organization','orgMobile','orgEmail','orgAddress']
+		writer = csv.writer(response)
+		writer.writerow(fieldnames)
+		writer.writerows(org_list)
+		return response 
+			

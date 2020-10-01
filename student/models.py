@@ -17,6 +17,7 @@ class Course(models.Model):
 	course_name = models.CharField(max_length=200)
 	duration = models.CharField(max_length=50)
 	course_fee = models.CharField(max_length=40)
+	category = models.CharField(max_length=20)
 
 	
 
@@ -36,3 +37,18 @@ class StudentCourse(models.Model):
 	course = models.ForeignKey(Course)
 	status = models.CharField(max_length = 20,choices = STATUS_CHOICES)
 	enroll_date = models.DateField(auto_now=True)
+
+
+class Organization(models.Model):
+    org_name = models.CharField(max_length=200, null=True, blank=True)
+    org_email = models.CharField(max_length=20, null=20, blank=True)
+    org_address = models.CharField(max_length=200, null=True, blank=True)
+    org_mobile = models.CharField(max_length=20, null=20, blank=True)
+
+class OrganizationCourse(models.Model):
+	organization = models.ForeignKey(Organization)
+	course = models.ForeignKey(Course)
+	student = models.ForeignKey(Student)
+	
+
+

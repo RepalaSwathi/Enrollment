@@ -41,4 +41,15 @@ class UpdateSerializer(serializers.Serializer):
 
 class StudentGetSerializer(serializers.Serializer):
 	ack_number = serializers.CharField(max_length=100)
-    
+
+class OrganizationAddSerializer(serializers.Serializer):
+	org_name = serializers.CharField(max_length=200)
+	org_address = serializers.CharField(max_length=50)
+	org_mobile = serializers.CharField(max_length=40)
+	org_email = serializers.CharField(max_length=40)
+
+class EmployeeSerializer(serializers.Serializer):
+	ename = serializers.CharField(max_length=200)
+	mobile = serializers.CharField(max_length=40)
+	email = serializers.CharField(max_length=40)
+
